@@ -1,0 +1,137 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+
+
+{% block body %}
+<script>
+    function getCookie(name){
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length == 2) return parts.pop().split(';').shift();
+    }
+
+    
+    function submitEdit(id) {
+        const textareaValue = document.getElementById(`textarea_${id}`).value;
+        const content = document.getElementById(`content_${id}`);
+        const modal = document.getElementById(`modal_edit_post_${id}`);
+    
+        fetch(`/edit/${id}`, {
+           method: "POST",
+           headers: {"content-type":"application/json", "X-CSRFToken": getCookie("csrftoken")},
+           body: JSON.stringify({
+               content:textareaValue
+           })
+        })
+        .then(response => response.json())
+        .then(result => {
+           content.innerHTML = result.data;
+        
+           modal.classList.remove('show');
+           modal.setAttribute('aria-hidden', 'true');
+           modal.setAttribute('style', 'display: none');
+
+           // get modal backdrops
+           const modalsBackdrops = document.getElementsByClassName('modal-backdrop');
+
+           // remove every modal backdrop
+           for(let i=0; i<modalsBackdrops.length; i++) {
+               document.body.removeChild(modalsBackdrops[i]);
+           }
+        })
+    
+    }
+
+
+</script>
+<link href="{% static 'Network/styles.css' %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script> 
+<script src="{% static 'Network/index.js' %}"></script>
+      <h2 style="margin-left: 15px;">All Posts</h2>
+      {% if user.is_authenticated %}
+         <div style="border: 1px solid lightgray; background-color: whitesmoke; padding: 10px;" class="mx-5 my-3">
+             <h4>New Post</h4>
+             {{use.id}}
+             <form action="{% url 'newPost' %}" method="POST">
+                {% csrf_token %}
+                <textarea autofocus name="content" rows="1" cols="100" placeholder=""></textarea>
+                <br/>
+                <input type="submit" value="Post" class="btn btn-primary"/>
+             </form>
+         </div>
+        <!----..........................................................................................-->
+           
+      {% endif %} 
+
+      <div class="all-posts">
+            {% for post in posts_of_page %}
+                <div class="post-container">
+                  <div class="post-header">
+                     <div class="sender-name"><a style="color: black;" href="{% url 'profile' user_id=post.user.id %}">@{{ post.user }}</a> </div>
+                     <div class="post-body">
+                        <p id="content_{{ post.id }}">{{ post.post }}</p>
+                     </div>
+                     <div class="timestamp">{{ post.timestamp }}  Twitter for Web</div>
+                  </div>
+                  <br>
+                  <br>
+                  <br>
+                  <br>
+                  {% if user.is_authenticated %} 
+                        {% if user == post.user %}
+                          <a data-bs-toggle="modal" data-bs-target="#modal_edit_post_{{ post.id }}" href="#">Edit</a> 
+                          <div class="modal" tabindex="-1" id="modal_edit_post_{{ post.id }}" aria-labelledby="modal_edit_post_{{ post.id }}" aria-hidden="true">
+                             <div class="modal-dialog">
+                                 <div class="modal-content">
+                                     <div class="modal-header">
+                                         <h5 class="modal-title">Edit Post</h5>
+                                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                             <span aria-hidden="true">&times;</span>
+                                         </button>
+                                     </div>
+                                     <div class="modal-body">
+                                         <textarea class="form-control" rows="5" id="textarea_{{ post.id }}" name="content">{{ post.post }}</textarea>
+                                     </div>
+                                     <div class="modal-footer">
+                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                         <button type="button" class="btn btn-primary" onclick="submitEdit('{{ post.id }}')">Save changes</button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                        {% else %}
+                        <button class="btn btn-secondary like-button" onclick="toggleCounter('{{ post.id }}', 'like-counter_{{ post.id }}')">
+                            <i class="fa fa-thumbs-up"></i>
+                        </button>
+                        <span class="counter-display like-counter" id="like-counter_{{ post.id }}">0</span>
+                        
+                       {% endif %} 
+                       
+                       
+                  {% endif %} 
+                </div>
+
+            {% endfor %}
+      </div>
+      
+
+      <nav aria-label="Page navigation example">
+            <ul class="pagination" style="margin-left: 500px;">
+              {% if posts_of_page.has_previous %}
+                 <li class="page-item"><a class="page-link" href="?page={{ posts_of_page.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              {% if posts_of_page.has_next %}
+                 <li class="page-item"><a class="page-link" href="?page={{ posts_of_page.next_page_number }}">Next</a></li>
+              {% endif %}
+            </ul>
+      </nav>
+      
+
+{% endblock %}
+
+
+
+
+
+

@@ -1,0 +1,37 @@
+.post-container {
+    border: 1px solid lightgray;
+    background-color: whitesmoke;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-left: 15px;
+    line-height: 0.3;
+    margin-right: 20px;
+  }
+
+ .sender-name{
+    color: black;
+    margin-right: 10px;
+    font-size: 18px;
+
+ }
+ .timestamp {
+    color: gray;
+    margin-right: 10px;
+ }
+
+ .post-body {
+    font-size: 17px;
+    line-height: 1.5;
+    color: black;
+    margin-top: 10px;
+ }
+
+.counter-display {
+   font-size: 20px;/* Adjust the font size as needed */
+   display: inline-block;
+   margin-left: 5px; /* Add some margin for better spacing */
+}
+
+
+
+ 

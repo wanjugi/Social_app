@@ -1,0 +1,89 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+  
+      <h2 style="margin-left: 15px;">{{ username }}</h2>
+      <div style="text-align: center; display: flex; justify-content: center;align-items: center;">
+           <h4> Followers:{{ followers.count }}</h4>
+           <h4 style="margin-left: 60px;"> Following: {{  following.count }}</h4>
+           {% if user.is_authenticated %}
+                {% if user != user_profile %}
+                    {% if isFollowing %}
+                       <form action="{% url 'unfollow' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="userfollow" value="{{ user_profile }}">
+                            <input style="margin-left: 40px;" type="submit"  value=" Unfollow">
+
+                       </form>
+                    {% else %}
+                       <form action="{% url 'follow' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="userfollow" value="{{ user_profile }}">
+                            <input style="margin-left: 40px;" type="submit"  value="Follow">
+                       </form>
+                    {% endif %}
+                {% endif %}
+           {% endif %}
+      </div>
+    
+      <style>
+
+            .post-container {
+               border: 1px solid lightgray;
+               background-color: whitesmoke;
+               padding: 10px;
+               margin-bottom: 10px;
+               margin-left: 15px;
+               line-height: 0.3;
+               margin-right: 20px;
+             }
+           
+            .sender-name{
+               color: black;
+               margin-right: 10px;
+               font-size: 18px;
+
+            }
+            .timestamp {
+               color: gray;
+               margin-right: 10px;
+            }
+           
+            .post-body {
+               font-size: 17px;
+               line-height: 1.5;
+               color: black;
+               margin-top: 10px;
+            }
+            
+      </style>
+
+      <div class="all-posts">
+            {% for post in posts_of_page %}
+                <div class="post-container">
+                  <div class="post-header">
+                     <div class="sender-name"><a href="{% url 'profile' user_id=post.user.id  %}">@{{ post.user }}</a></div>
+                     <div class="post-body">
+                        <p>{{ post.post }}</p>
+                     </div>
+                     <div class="timestamp">{{ post.timestamp }}  Twitter for Web</div>
+                  </div>
+                  
+                </div>
+            {% endfor %}
+      </div>
+
+      <nav aria-label="Page navigation example">
+            <ul class="pagination" style="margin-left: 500px;">
+              {% if posts_of_page.has_previous %}
+                 <li class="page-item"><a class="page-link" href="?page={{ posts_of_page.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              {% if posts_of_page.has_next %}
+                 <li class="page-item"><a class="page-link" href="?page={{ posts_of_page.next_page_number }}">Next</a></li>
+              {% endif %}
+            </ul>
+      </nav>
+      
+
+{% endblock %}
+
